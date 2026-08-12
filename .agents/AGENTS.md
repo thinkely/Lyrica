@@ -39,20 +39,26 @@ lyrica/
 │   │   ├── netease_fetcher.py
 │   │   ├── megalobiz_fetcher.py
 │   │   ├── musixmatch_fetcher.py
-│   │   └── lrcmux_fetcher.py   # NEW: Musixmatch via api.lrcmux.dev; line & word-level sync
+│   │   └── lrcmux_fetcher.py   # Musixmatch via api.lrcmux.dev; line & word-level sync
 │   ├── sentiment_analyzer.py
 │   ├── metadata_extractor.py
 │   └── trending_analytics.py
+├── guide/
+│   ├── SETUP_GUIDE.md        # Installation & setup guide
+│   ├── USER_GUIDE.md         # Comprehensive API reference guide
+│   ├── WORD_SYNC_GUIDE.md    # Word-level sync documentation (schema + implementation examples)
+│   ├── TRANSLATION_GUIDE.md  # Detailed guide on translation configuration
+│   └── DEPLOYMENT_GUIDE.md   # Deployment guide across Docker, VPS, Render, HF, Railway, etc.
 ├── Test/
 │   └── lrcmux/
 │       ├── run_test_and_log.py          # Integration test (line + word level)
 │       └── test_fetcher_integration.py  # Unit-style fetcher assertions
+├── scripts/
+│   └── parse_flask_routes.py # OpenAPI 3.0 route parser script
 ├── .env.example
 ├── .lyrica.config.example
 ├── README.md
-├── WORD_SYNC_GUIDE.md      # Word-level sync documentation (schema + implementation examples)
-├── TRANSLATION_GUIDE.md    # Detailed guide on translation configuration
-├── SETUP_GUIDE.md
+├── openapi.json
 └── requirements.txt
 ```
 
@@ -180,6 +186,7 @@ lyrica/
 - **Lyrics Romanization** — Transliterate lyrics via Groq LLM (`&romanize=true&language=en`)
 - Multi-key Groq API management with round-robin and 24h failover cooldowns
 - YT auth via env vars (`YT_COOKIES_PATH`, `YT_HEADERS_PATH`) — priority over filesystem scan
+- Documentation organized under `guide/` directory (`SETUP_GUIDE.md`, `USER_GUIDE.md`, `WORD_SYNC_GUIDE.md`, `TRANSLATION_GUIDE.md`, `DEPLOYMENT_GUIDE.md`)
 
 ### Planned (Future)
 - Community translation database (contribute & share translations)
