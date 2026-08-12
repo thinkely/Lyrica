@@ -227,7 +227,7 @@ Please ensure code adheres to PEP 8 standards and new features include documenta
                 </a>
             </td>
 		</tr>
-	</tbody>
+	<tbody>
 </table>
 <!-- readme: contributors -end -->
 
