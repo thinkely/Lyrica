@@ -87,6 +87,9 @@ docker run -p 9999:9999 --env-file .env lyrica
 | 7 | **Lrcmux** | Timestamped + Word-Level | None (api.lrcmux.dev) |
 
 *Default Fallback Order:* `LRCLIB (2) → Lrcmux (7) → Genius (1) → YouTube (3) → NetEase (4) → Megalobiz (5) → Musixmatch (6)`
+- A new support of apple music will be added soon but if you wants its standalone version then you can access it from below links:-
+- [python version](https://github.com/Wilooper/LyricaAME-py.git)
+- [nextjs version](https://github.com/Wilooper/LyricaAME-js.git)
 
 ---
 
