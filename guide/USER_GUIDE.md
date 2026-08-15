@@ -59,7 +59,8 @@ Fetches lyrics from configured sources with optional timestamps, word-level sync
 | `artist` | string | **Yes** | — | Artist name |
 | `song` | string | **Yes** | — | Song title |
 | `timestamps` | boolean | No | `false` | Return synchronized line-level LRC timestamps (`timed_lyrics`) |
-| `word` | boolean | No | `false` | Return per-word synchronized timestamps via Lrcmux (`requires timestamps=true`) |
+| `word` | boolean | No | `false` | Return per-word synchronized timestamps via Lrcmux or Apple Music (`requires timestamps=true`) |
+| `syllabus` | boolean | No | `false` | Return per-syllable synchronized timestamps via Apple Music (`requires timestamps=true`; requires `APPLE_MUSIC_DEVELOPER_TOKEN`) |
 | `sequence` | string | No | — | Comma-separated fetcher IDs (e.g. `2,7,1` or `lrclib,lrcmux`) |
 | `pass` | boolean | No | `false` | Restrict search strictly to sources in `sequence` without fallback |
 | `fast` | boolean | No | `false` | Parallel fetching mode for fast response times |
@@ -80,7 +81,11 @@ curl "http://127.0.0.1:9999/lyrics/?artist=Coldplay&song=Yellow"
 curl "http://127.0.0.1:9999/lyrics/?artist=Coldplay&song=Yellow&timestamps=true"
 
 # Word-level synchronized timestamps (Karaoke)
+# Word-Level Sync (Karaoke)
 curl "http://127.0.0.1:9999/lyrics/?artist=Coldplay&song=Yellow&timestamps=true&word=true"
+
+# Syllable-Level Sync (Apple Music)
+curl "http://127.0.0.1:9999/lyrics/?artist=Coldplay&song=Yellow&timestamps=true&syllabus=true"
 
 # Translated & Romanized synced lyrics
 curl "http://127.0.0.1:9999/lyrics/?artist=Karan%20Aujla&song=Boyfriend&timestamps=true&translate=true&romanize=true&language=en"
@@ -192,8 +197,9 @@ curl "http://127.0.0.1:9999/jiosaavn/play?id=TRACK_ID"
 | 5 | `megalobiz` | Megalobiz | Line-level (LRC) | None |
 | 6 | `musixmatch` | Musixmatch | Line-level (LRC) | `MUSIXMATCH_TOKEN` (optional) |
 | 7 | `lrcmux` | Lrcmux (api.lrcmux.dev) | Line & Word-level | None |
+| 8 | `apple_music` | Apple Music | Line, Word-level & Syllable-level | `APPLE_MUSIC_DEVELOPER_TOKEN` |
 
-Default fallback sequence: `2 → 7 → 1 → 3 → 4 → 5 → 6`
+Default fallback sequence: `2 → 7 → 1 → 3 → 4 → 5 → 6 → 8`
 
 ---
 

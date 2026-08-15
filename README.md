@@ -12,11 +12,11 @@
 
 ## 📌 Overview
 
-**Lyrica** aggregates song lyrics from **7 active sources** with intelligent fallback, fast parallel execution, word-level synchronization (Karaoke mode), sentiment analysis, song metadata, trending charts, and real-time LLM translation/romanization using Groq.
+**Lyrica** aggregates song lyrics from **8 active sources** with intelligent sync-level fallback, fast parallel execution, word-level synchronization (Karaoke mode), syllable-level sync, sentiment analysis, song metadata, trending charts, and real-time LLM translation/romanization using Groq.
 
 - 💡 **No API Key Required**: Fully functional out-of-the-box without registration.
 - ⚡ **Sub-Second Speed**: Parallel multi-source fetch mode (`fast=true`) with TTL disk caching.
-- 🎵 **Word-Level Sync**: Per-word timestamps for karaoke applications via Lrcmux (`&word=true`).
+   - 🎤 **Word & Syllable-Level Sync**: Per-word and per-syllable timestamps for karaoke applications via Lrcmux (`&word=true`) and Apple Music (`&syllabus=true`).
 - 🌐 **AI Translation**: Translate & romanize lyrics on-the-fly via Groq LLM (`&translate=true`).
 - 🚀 **Production Ready**: Gunicorn-compatible with multi-key Groq rotation and proxy pool support.
 
@@ -62,9 +62,10 @@ docker run -p 9999:9999 --env-file .env lyrica
 
 ## ✨ Features
 
-- 🎧 **Multi-Source Aggregation**: 7 active providers with automated fallback.
+- 🎧 **Multi-Source Aggregation**: 8 active providers with automated sync-level fallback.
 - ⏱️ **Synchronized Timestamps (LRC)**: Line-level lyrics timing with millisecond accuracy.
-- 🎤 **Word-Level Sync (Karaoke)**: Per-word timing entries via Musixmatch / Lrcmux (`&word=true`).
+- 🎤 **Word-Level Sync (Karaoke)**: Per-word timing entries via Lrcmux / Apple Music (`&word=true`).
+- 🎵 **Syllable-Level Sync**: Per-syllable timing via Apple Music (`&syllabus=true`).
 - 🤖 **AI Translation & Romanization**: Real-time translation and transliteration to target languages using Groq LLM (`llama-3.3-70b-versatile`).
 - 📊 **Sentiment & Mood Analysis**: Polarity, subjectivity, emotion classification, and word frequency breakdown.
 - 🖼️ **Rich Track Metadata**: Cover art, duration, genre, release date, and album information.
@@ -85,8 +86,9 @@ docker run -p 9999:9999 --env-file .env lyrica
 | 5 | **Megalobiz** | Timestamped (LRC) | None |
 | 6 | **Musixmatch** | Timestamped (LRC) | `MUSIXMATCH_TOKEN` (optional) |
 | 7 | **Lrcmux** | Timestamped + Word-Level | None (api.lrcmux.dev) |
+| 8 | **Apple Music** | Timestamped + Word-Level + Syllable-Level | `APPLE_MUSIC_DEVELOPER_TOKEN` |
 
-*Default Fallback Order:* `LRCLIB (2) → Lrcmux (7) → Genius (1) → YouTube (3) → NetEase (4) → Megalobiz (5) → Musixmatch (6)`
+*Default Fallback Order:* `LRCLIB (2) → Lrcmux (7) → Genius (1) → YouTube (3) → NetEase (4) → Megalobiz (5) → Musixmatch (6) → Apple Music (8)`
 - A new support of apple music will be added soon but if you wants its standalone version then you can access it from below links:-
 - [python version](https://github.com/Wilooper/LyricaAME-py.git)
 - [nextjs version](https://github.com/Wilooper/LyricaAME-js.git)
@@ -105,6 +107,7 @@ GENIUS_TOKEN=your_genius_token
 GROQ_API_KEY=gsk_key1,gsk_key2
 GROQ_MODEL=llama-3.3-70b-versatile
 PROXY_URL=http://user:pass@host:port
+APPLE_MUSIC_DEVELOPER_TOKEN=your_apple_music_developer_token
 YT_COOKIES_PATH=/app/security/cookies.txt
 RATE_LIMIT_STORAGE_URI=memory://
 CACHE_TTL=86400
@@ -130,6 +133,11 @@ curl "http://127.0.0.1:9999/lyrics/?artist=Coldplay&song=Yellow&timestamps=true"
 ### 3. Word-Level Sync (Karaoke Mode)
 ```bash
 curl "http://127.0.0.1:9999/lyrics/?artist=Coldplay&song=Yellow&timestamps=true&word=true"
+```
+
+### 3b. Syllable-Level Sync (Apple Music)
+```bash
+curl "http://127.0.0.1:9999/lyrics/?artist=Coldplay&song=Yellow&timestamps=true&syllabus=true"
 ```
 
 ### 4. Translation & Romanization (Groq LLM)

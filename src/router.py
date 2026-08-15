@@ -247,6 +247,18 @@ def register_routes(app):
                         "required": False,
                         "default": "en",
                         "description": "Target language for translate/romanize (e.g., en, hindi, spanish, japanese)"
+                    },
+                    "word": {
+                        "type": "boolean",
+                        "required": False,
+                        "default": False,
+                        "description": "Request word-level synced lyrics (e.g., from Lrcmux or Apple Music)"
+                    },
+                    "syllabus": {
+                        "type": "boolean",
+                        "required": False,
+                        "default": False,
+                        "description": "Request syllable-level synced lyrics (Apple Music only)"
                     }
                 },
                 "fetchers": {
@@ -254,9 +266,10 @@ def register_routes(app):
                     "2": "LRCLIB",
                     "3": "YouTube Music (3-layer: ytmusicapi [authenticated] / transcript-api / yt-dlp)",
                     "4": "NetEase (via syncedlyrics, synced LRC)",
-                    "5": "Megalobiz (via syncedlyrics, synced LRC)",
+                    "5": "Megallobiz (via syncedlyrics, synced LRC)",
                     "6": "Musixmatch (via syncedlyrics, optional MUSIXMATCH_TOKEN)",
-                    "7": "Lrcmux (via api.lrcmux.dev, Musixmatch lyrics; supports word-level sync with &word=true)"
+                    "7": "Lrcmux (via api.lrcmux.dev, Musixmatch lyrics; supports word-level sync with &word=true)",
+                    "8": "Apple Music (requires APPLE_MUSIC_DEVELOPER_TOKEN; syllable-level with &syllabus=true, word-level with &word=true)",
                 }
             }
         )
@@ -288,6 +301,7 @@ def register_routes(app):
         do_translate = request.args.get("translate", str(cfg.default_translate if cfg else False)).lower() == "true"
         do_romanize  = request.args.get("romanize",  str(cfg.default_romanize  if cfg else False)).lower() == "true"
         word_level   = request.args.get("word",      str(cfg.default_word      if cfg else False)).lower() == "true"
+        syllabus     = request.args.get("syllabus",  "false").lower() == "true"
         target_language = request.args.get("language", cfg.default_language if cfg else "en").strip().lower()
         _fast_timeout = cfg.fast_timeout if cfg else 20
 
@@ -318,7 +332,7 @@ def register_routes(app):
         logger.info(
             f"Lyrics request: {artist} - {song} (fast={fast_mode}, mood={analyze_mood}, "
             f"metadata={include_metadata}, translate={do_translate}, romanize={do_romanize}, "
-            f"word={word_level}, lang={target_language})"
+            f"word={word_level}, syllabus={syllabus}, lang={target_language})"
         )
 
         # Record user query for analytics
@@ -337,6 +351,7 @@ def register_routes(app):
             analyze_mood, include_metadata,
             translate=do_translate, romanize=do_romanize, language=target_language,
             word_level=word_level,
+            syllabus=syllabus,
         )
         cached = load_from_cache(cache_key)
 
@@ -356,8 +371,9 @@ def register_routes(app):
                     fast_mode=fast_mode,
                     fast_timeout=_fast_timeout,
                     word_level=word_level,
+                    syllabus=syllabus,
                 ),
-                timeout=60
+                timeout=60,
             )
         except asyncio.TimeoutError:
             logger.error(f"Timeout fetching lyrics for {artist} - {song}")

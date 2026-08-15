@@ -8,7 +8,7 @@ from src.config import CACHE_DIR, CACHE_TTL
 # Ensure cache directory exists
 os.makedirs(CACHE_DIR, exist_ok=True)
 
-CACHE_VERSION = "v4"  # bump this if response format changes
+CACHE_VERSION = "v5"  # bump this if response format changes
 
 
 def make_cache_key(
@@ -23,6 +23,7 @@ def make_cache_key(
     romanize: bool = False,
     language: str = "en",
     word_level: bool = False,
+    syllabus: bool = False,
 ) -> str:
     """
     Collision-safe, filesystem-safe cache key
@@ -41,6 +42,7 @@ def make_cache_key(
         "romanize": bool(romanize),
         "language": (language or "en").strip().lower(),
         "word_level": bool(word_level),
+        "syllabus": bool(syllabus),
     }
 
     raw = json.dumps(payload, sort_keys=True, ensure_ascii=False)

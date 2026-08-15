@@ -21,6 +21,13 @@ LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
 # external tokens (must be provided via environment variables in production)
 GENIUS_TOKEN = os.getenv("GENIUS_TOKEN", "")
 
+# Apple Music (requires Apple Music Developer token)
+APPLE_MUSIC_DEVELOPER_TOKEN = os.getenv("APPLE_MUSIC_DEVELOPER_TOKEN") or os.getenv("DEVELOPER_TOKEN", "")
+APPLE_MUSIC_USER_TOKEN = os.getenv("APPLE_MUSIC_USER_TOKEN") or os.getenv("MUSIC_USER_TOKEN", "")
+APPLE_STOREFRONT = os.getenv("APPLE_STOREFRONT", "us")
+APPLE_LYRICS_LANGUAGE = os.getenv("APPLE_LYRICS_LANGUAGE", "en")
+APPLE_LYRICS_SCRIPT = os.getenv("APPLE_LYRICS_SCRIPT", "latin")
+
 # The current YouTube fetcher uses public APIs and caption fallbacks, so no
 # cookie-based auth is required or consumed by the runtime.
 

@@ -10,14 +10,16 @@ make that fetcher silently unavailable.
 
 Source status (as of 2026-07-26):
   ACTIVE:
-    genius      — requires GENIUS_TOKEN env var
-    lrclib      — free, synced + plain, very reliable
-    youtube     — 3-layer (ytmusicapi [auth] -> transcript-api -> yt-dlp)
-                  auto-detects headers_auth.json / cookies.txt for auth
-                  all layers route through Webshare rotating proxy
-    netease     — via syncedlyrics; synced LRC, large catalog
-    megalobiz   — via syncedlyrics; synced LRC, user-contributed
-    musixmatch  — via syncedlyrics; optional MUSIXMATCH_TOKEN env var
+    genius       — requires GENIUS_TOKEN env var (optional)
+    lrclib       — free, synced + plain, very reliable
+    youtube      — 3-layer (ytmusicapi [auth] -> transcript-api -> yt-dlp)
+                    auto-detects headers_auth.json / cookies.txt for auth
+                    all layers route through Webshare rotating proxy
+    netease      — via syncedlyrics; synced LRC, large catalog
+    megalobiz    — via syncedlyrics; synced LRC, user-contributed
+    musixmatch   — via syncedlyrics; optional MUSIXMATCH_TOKEN env var
+    lrcmux       — Musixmatch via api.lrcmux.dev; line & word-level sync, no token
+    apple_music  — requires APPLE_MUSIC_DEVELOPER_TOKEN (syllable/word/line sync)
 
   DISABLED (dead — kept for reference, not loaded):
     simpmusic   — removed (api-lyrics.simpmusic.org is unreliable)
@@ -25,6 +27,7 @@ Source status (as of 2026-07-26):
     chartlyrics — XML API dead
     lyricsfreek — DNS failure (domain dead)
 """
+import os
 from src.logger import get_logger
 
 logger = get_logger("sources")
@@ -48,6 +51,17 @@ _try_import("netease",    "src.sources.netease_fetcher",     "NetEaseFetcher")
 _try_import("megalobiz",  "src.sources.megalobiz_fetcher",   "MegalobizFetcher")
 _try_import("musixmatch", "src.sources.musixmatch_fetcher",  "MusixmatchFetcher")
 _try_import("lrcmux",     "src.sources.lrcmux_fetcher",      "LrcmuxFetcher")
+
+# ── Apple Music (requires developer token) ───────────────────────────────────
+# Only loaded when APPLE_MUSIC_DEVELOPER_TOKEN or DEVELOPER_TOKEN is set.
+# Apple Music provides syllable-level, word-level, and line-level synced lyrics
+# (no plain/unsynced lyrics). Requires an Apple Music developer JWT token.
+if os.getenv("APPLE_MUSIC_DEVELOPER_TOKEN") or os.getenv("DEVELOPER_TOKEN"):
+    _try_import("apple_music", "src.sources.apple_music_fetcher", "AppleMusicFetcher")
+else:
+    logger.info(
+        "Apple Music fetcher skipped (set APPLE_MUSIC_DEVELOPER_TOKEN to enable)"
+    )
 
 # ── Disabled fetchers (do NOT load into ALL_FETCHERS) ────────────────────────
 # _try_import("simpmusic",   "src.sources.simp_music_fetcher",  "SimpMusicFetcher")   # removed

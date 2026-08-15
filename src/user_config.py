@@ -28,7 +28,7 @@ def _parse_int(value: str | None, default: int) -> int:
 
 def _parse_sequence(value: str | None) -> list[int]:
 	if not value:
-		return [1, 2, 3, 4, 5, 6, 7]
+		return [1, 2, 3, 4, 5, 6, 7, 8]
 	items: list[int] = []
 	for part in value.split(","):
 		part = part.strip()
@@ -38,7 +38,7 @@ def _parse_sequence(value: str | None) -> list[int]:
 			items.append(int(part))
 		except ValueError:
 			continue
-	return items or [1, 2, 3, 4, 5, 6, 7]
+	return items or [1, 2, 3, 4, 5, 6, 7, 8]
 
 
 @dataclass
@@ -52,7 +52,7 @@ class UserConfig:
 	default_romanize: bool = False
 	default_word: bool = False
 	default_language: str = "en"
-	default_sequence: list[int] = field(default_factory=lambda: [1, 2, 3, 4, 5, 6, 7])
+	default_sequence: list[int] = field(default_factory=lambda: [1, 2, 3, 4, 5, 6, 7, 8])
 	reload_on_config_change: bool = False
 	genius_rpm: int = 5
 	lrclib_rpm: int = 30
@@ -61,6 +61,7 @@ class UserConfig:
 	megalobiz_rpm: int = 15
 	musixmatch_rpm: int = 15
 	lrcmux_rpm: int = 30
+	apple_music_rpm: int = 10
 	fast_timeout: int = 20
 	request_timeout: int = 60
 	cache_ttl: int | None = None
@@ -90,6 +91,7 @@ class UserConfig:
 				"megalobiz_rpm": self.megalobiz_rpm,
 				"musixmatch_rpm": self.musixmatch_rpm,
 				"lrcmux_rpm": self.lrcmux_rpm,
+				"apple_music_rpm": self.apple_music_rpm,
 			},
 			"proxies": {"items": self.proxies, "persist": False},
 			"cache": {"ttl": self.cache_ttl, "dir": self.cache_dir},
@@ -140,6 +142,7 @@ def _load_from_path(path: Path) -> UserConfig:
 		cfg.megalobiz_rpm = _parse_int(rate_limits.get("megalobiz_rpm"), cfg.megalobiz_rpm)
 		cfg.musixmatch_rpm = _parse_int(rate_limits.get("musixmatch_rpm"), cfg.musixmatch_rpm)
 		cfg.lrcmux_rpm = _parse_int(rate_limits.get("lrcmux_rpm"), cfg.lrcmux_rpm)
+		cfg.apple_music_rpm = _parse_int(rate_limits.get("apple_music_rpm"), cfg.apple_music_rpm)
 
 	if parser.has_section("cache"):
 		cache = parser["cache"]

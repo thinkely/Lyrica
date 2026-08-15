@@ -28,8 +28,8 @@ GET /lyrics/?artist=Coldplay&song=Yellow&timestamps=true&word=true
 | `pass` | boolean | No | `false` | When `true`, restricts search strictly to sources in `sequence` |
 
 > [!NOTE]
-> Word-level sync data is provided exclusively by **Lrcmux (Source ID 7)**, which aggregates Musixmatch data via `api.lrcmux.dev` without requiring an API token.
-> If a track has no word-level data on Musixmatch or Lrcmux is unavailable, Lyrica automatically falls back to line-level sync so your application flow never breaks.
+> Word-level sync data is provided by **Lrcmux (Source ID 7)** and **Apple Music (Source ID 8)**. Lrcmux aggregates Musixmatch data via `api.lrcmux.dev` without requiring an API token. Apple Music provides native Apple Music lyrics with per-syllable and per-word timing via the Apple Music API (requires `APPLE_MUSIC_DEVELOPER_TOKEN`).
+> If a track has no word-level data on any source, Lyrica automatically falls back to line-level sync so your application flow never breaks.
 
 ---
 
@@ -61,7 +61,7 @@ GET /lyrics/?artist=Coldplay&song=Yellow&timestamps=true&word=true
 |-------|------|-------------|
 | `source` | string | Source provider name (typically `"lrcmux"`) |
 | `hasTimestamps` | boolean | `true` when timed lyrics are present |
-| `sync_level` | string | `"word"` (per-word timing available) or `"line"` (line timing only) |
+| `sync_level` | string | `"word"` (per-word timing available) or `"line"` (line timing only) or `"syllable"` (per-syllable timing available, Apple Music) |
 | `timed_lyrics` | array | Array of synchronized line objects |
 | `lyrics` | string | Plain text formatted lyrics (line breaks included) |
 
@@ -208,4 +208,43 @@ for line in data["timed_lyrics"]:
 2. **Force Lrcmux (`sequence=7&pass=true`)**:
    If you strictly require word-level sync and do not want line-level fallbacks from LRCLIB or YouTube, set `sequence=7&pass=true`.
 3. **Cache Collisions Prevented**:
-   Lyrica includes `word_level` in its SHA-256 cache key, ensuring line-level queries and word-level queries for the same song never overwrite each other in `cache_data/`.
+   Lyrica includes `word_level` and `syllabus` in its SHA-256 cache key, ensuring line-level, word-level, and syllable-level queries for the same song never overwrite each other in `cache_data/`.
+
+---
+
+## 🎵 Syllable-Level Sync (Apple Music)
+
+Add `&syllabus=true` to request syllable-level synchronized lyrics (Apple Music only):
+
+```bash
+GET /lyrics/?artist=Coldplay&song=Yellow&timestamps=true&syllabus=true
+```
+
+Syllable-level sync provides timing for **each syllable** within a word, enabling the most granular karaoke experience. The `sync_level` field in the response will be `"syllable"`.
+
+### Syllable Object Schema
+
+Each word in `timed_lyrics[].words` may contain a `syllables` array:
+
+```json
+{
+  "text": "Look",
+  "start": 36189,
+  "end": 36546,
+  "syllables": [
+    { "text": "Look", "start": 36189, "end": 36300 },
+    { "text": "ing",  "start": 36300, "end": 36546 }
+  ]
+}
+```
+
+### Sync-Level Fallback Hierarchy
+
+When `timestamps=true` and no `sequence` is specified, Lyrica tries sources in this order:
+
+1. **Syllable-level** (`&syllabus=true`): Apple Music (source 8) — per-syllable timing
+2. **Word-level** (`&word=true`): Lrcmux (source 7) + Apple Music (source 8) — per-word timing
+3. **Line-level**: All sources — line-level timing
+4. **Plain**: All sources except Apple Music — unsynced plain lyrics
+
+Apple Music is always excluded when `timestamps=false` since it does not provide plain text lyrics.

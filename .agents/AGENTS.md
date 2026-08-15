@@ -39,7 +39,8 @@ lyrica/
 │   │   ├── netease_fetcher.py
 │   │   ├── megalobiz_fetcher.py
 │   │   ├── musixmatch_fetcher.py
-│   │   └── lrcmux_fetcher.py   # Musixmatch via api.lrcmux.dev; line & word-level sync
+│   │   ├── lrcmux_fetcher.py   # Musixmatch via api.lrcmux.dev; line & word-level sync
+│   │   └── apple_music_fetcher.py # Apple Music AMP API; line, word-level & syllable-level sync (requires token)
 │   ├── sentiment_analyzer.py
 │   ├── metadata_extractor.py
 │   └── trending_analytics.py
@@ -73,8 +74,9 @@ lyrica/
 | 5 | megalobiz | `megalobiz_fetcher.py` | Via syncedlyrics |
 | 6 | musixmatch | `musixmatch_fetcher.py` | Via syncedlyrics, requires `MUSIXMATCH_TOKEN` |
 | 7 | lrcmux | `lrcmux_fetcher.py` | Musixmatch via api.lrcmux.dev, no token needed |
+| 8 | apple_music | `apple_music_fetcher.py` | Apple Music AMP API, requires `APPLE_MUSIC_DEVELOPER_TOKEN` |
 
-**Default fallback order**: `lrclib → lrcmux → genius → youtube → netease → megalobiz → musixmatch`
+**Default fallback order**: `lrclib → lrcmux → genius → youtube → netease → megalobiz → musixmatch → apple_music`
 
 ## Key Query Parameters (`/lyrics/`)
 
@@ -83,7 +85,7 @@ lyrica/
 | `artist` | string | required | Artist name |
 | `song` | string | required | Song title |
 | `timestamps` | bool | false | Return line-level synced lyrics |
-| `word` | bool | false | Return word-level synced lyrics (lrcmux only; requires `timestamps=true`) |
+| `word` | bool | false | Return word-level synced lyrics (lrcmux or apple_music; requires `timestamps=true`) |
 | `sequence` | string | all sources | Comma-separated source IDs or names (e.g. `2,7` or `lrclib,lrcmux`) |
 | `fast` | bool | false | Parallel fetch mode |
 | `mood` | bool | false | Sentiment analysis |
@@ -92,6 +94,7 @@ lyrica/
 | `romanize` | bool | false | Romanize/transliterate via Groq LLM |
 | `language` | string | en | Target language for translate/romanize |
 | `pass` | bool | false | Only query sources in `sequence`, no fallback |
+| `syllabus` | bool | false | Request syllable-level sync (Apple Music only; requires `timestamps=true` and `APPLE_MUSIC_DEVELOPER_TOKEN`) |
 
 ## Environment Variables
 
@@ -100,6 +103,11 @@ lyrica/
 | `ADMIN_KEY` | Protects admin endpoints |
 | `GENIUS_TOKEN` | Genius API auth |
 | `MUSIXMATCH_TOKEN` | Musixmatch API auth |
+| `APPLE_MUSIC_DEVELOPER_TOKEN` | Apple Music Developer JWT token (also accepts `DEVELOPER_TOKEN` alias) |
+| `APPLE_MUSIC_USER_TOKEN` | Apple Music user token (also accepts `MUSIC_USER_TOKEN` alias) |
+| `APPLE_STOREFRONT` | Apple Music storefront country code (default: `us`) |
+| `APPLE_LYRICS_LANGUAGE` | Preferred lyrics language code (default: `en`) |
+| `APPLE_LYRICS_SCRIPT` | Preferred lyrics script code (default: `latin`) |
 | `GROQ_API_KEY` | Groq LLM key(s), comma-separated for load balancing |
 | `GROQ_MODEL` | Override Groq model (default: `llama-3.3-70b-versatile`) |
 | `PROXY_URL` | **Global proxy** for ALL fetchers; loaded into proxy pool at startup; comma-separated list supported |
@@ -127,8 +135,8 @@ lyrica/
 
 ### 3. Cache Key Convention
 - Cache keys are SHA-256 hashes of a JSON payload containing all relevant parameters
-- Current `CACHE_VERSION = "v3"` in `cache.py` — bump when response format changes
-- `word_level` is included in the cache key to prevent collisions between line and word sync responses
+   - Current `CACHE_VERSION = "v4"` in `cache.py` — bump when response format changes
+   - `word_level` and `syllabus` are included in the cache key to prevent collisions
 - Translation cache is separate from lyrics cache (different directory)
 
 ### 4. Config Hierarchy
@@ -138,19 +146,36 @@ lyrica/
 - `PROXY_URL` env var seeds the proxy pool at `create_app()` time (before routes register)
 
 ### 5. Adding a New Fetcher
-1. Create `src/sources/<name>_fetcher.py` — subclass `BaseFetcher`, implement `async fetch(artist, song, timestamps=False)`
+1. Create `src/sources/<name>_fetcher.py` — subclass `BaseFetcher`, implement `async fetch(artist, song, timestamps=False, word_level=False, syllabus=False)`
 2. Register in `src/sources/__init__.py` → `ALL_FETCHERS`
 3. Add to `_SOURCE_ORDER` and `_SOURCE_BY_ID` in `src/fetch_controller.py`
 4. Add `<name>_rpm` to `UserConfig` dataclass and `_load_from_path()` in `user_config.py`
-5. If the fetcher needs a unique parameter (like `word_level` for lrcmux), handle it explicitly in `_try_fetcher()` in `fetch_controller.py`
+5. If the fetcher needs a unique parameter (like `word_level` or `syllabus`), handle it explicitly in `_try_fetcher()` in `fetch_controller.py`
 
-### 6. Word-Level Sync Pattern (lrcmux-specific)
-- `word_level` is a parameter only meaningful to lrcmux
-- `fetch_controller._try_fetcher()` detects `source_name == "lrcmux"` and passes `word_level=word_level`
-- Other fetchers receive only `timestamps` — do not add `word_level` to base `BaseFetcher.fetch()` signature
-- When `timestamps=True, word_level=True` → `level=word` sent to lrcmux API
-- When `timestamps=True, word_level=False` → `level=line` sent to lrcmux API
-- `sync_level` from the API response `meta` dict is included in the result via `**extra`
+### 6. Multi-Sync-Level Fallback Pattern
+
+The `fetch_controller.py` implements a sync-level fallback hierarchy when `pass_param=False`:
+
+1. **Syllable phase** (`&syllabus=true`): Tries `apple_music` with `syllabus=True, word_level=True`
+2. **Word phase** (`&word=true`): Tries `lrcmux` + `apple_music` with `word_level=True`
+3. **Line phase** (`&timestamps=true`): Tries all sources with line-level timing
+4. **Plain phase** (`timestamps=false`): Tries all sources except `apple_music` (which doesn't provide plain lyrics)
+
+When `pass_param=true`, the user's explicit `sequence` is used as a single phase with no sync-level fallback.
+
+The `_accept_check()` helper returns the appropriate predicate for each phase:
+- `_is_syllable_synced_result` — checks for `sync_level == "syllable"` or `syllables` in word objects
+- `_is_word_synced_result` — checks for `sync_level == "word"` or `words` array in line objects
+- `_is_timestamped_result` — checks for `hasTimestamps` or `timed_lyrics` in response
+- `lambda r: r is not None` — accepts any result (plain lyrics)
+
+### 7. Word/Syllable-Level Sync Pattern
+
+- `word_level` and `syllabus` are parameters only meaningful to `lrcmux` and `apple_music`
+- `_try_fetcher()` in `fetch_controller.py` detects these sources and passes the extra params
+- Other fetchers receive only `timestamps`
+- Apple Music is conditionally registered in `ALL_FETCHERS` only when `APPLE_MUSIC_DEVELOPER_TOKEN` env var is set
+- Cache keys include both `word_level` and `syllabus` to prevent collisions across sync levels
 
 ### 7. Error Handling
 - Fetchers must catch all exceptions and return `None` on failure (never crash the server)
@@ -169,16 +194,17 @@ lyrica/
 
 ## Current Feature Roadmap
 
-### Implemented (v1.4.0)
-- Multi-source lyrics fetching — **7 sources** (Genius, LRCLIB, YouTube, NetEase, Megalobiz, Musixmatch, Lrcmux)
+### Implemented (v1.5.0)
+- Multi-source lyrics fetching — **8 sources** (Genius, LRCLIB, YouTube, NetEase, Megalobiz, Musixmatch, Lrcmux, Apple Music)
 - Synced (timestamped) and plain lyrics
-- **Word-Level Sync** — per-word timestamps via Lrcmux/Musixmatch (`&word=true&timestamps=true`)
+- **Word-Level Sync** — per-word timestamps via Lrcmux / Apple Music (`&word=true&timestamps=true`)
+- **Syllable-Level Sync** — per-syllable timestamps via Apple Music (`&syllabus=true&timestamps=true`)
 - Mood/sentiment analysis
 - Metadata enrichment (cover art, genre, etc.)
 - Trending analytics by country
 - JioSaavn search & stream
 - Song suggestion via MusicBrainz
-- File-based caching with TTL (`word_level` included in cache key)
+- File-based caching with TTL (`word_level` and `syllabus` included in cache key)
 - Proxy rotation — thread-safe pool; seedable via `PROXY_URL` env at startup
 - User config file (`.lyrica.config`) with `word` default support
 - Rate limiting

@@ -83,6 +83,11 @@ Once the server is running, test these URLs in your browser or terminal:
 | `ADMIN_KEY` | Recommended | — | Key to protect `/cache/clear`, `/config/reload`, and `/proxy/*` admin endpoints |
 | `GENIUS_TOKEN` | Optional | — | Client access token for Genius (Source 1) |
 | `MUSIXMATCH_TOKEN` | Optional | — | Client access token for Musixmatch (Source 6) |
+| `APPLE_MUSIC_DEVELOPER_TOKEN` | Optional | — | Apple Music Developer JWT token for lyric fetching (Source 8). Also accepts `DEVELOPER_TOKEN` as alias. |
+| `APPLE_MUSIC_USER_TOKEN` | Optional | — | Apple Music user authentication token (may be required for some API endpoints). Also accepts `MUSIC_USER_TOKEN` as alias. |
+| `APPLE_STOREFRONT` | Optional | `us` | Apple Music storefront country code (e.g., `us`, `gb`, `in`). |
+| `APPLE_LYRICS_LANGUAGE` | Optional | `en` | Preferred lyrics language code. |
+| `APPLE_LYRICS_SCRIPT` | Optional | `latin` | Preferred lyrics script code. |
 | `GROQ_API_KEY` | Optional | — | Groq LLM key(s) for lyrics translation & romanization. Supports comma-separated keys for round-robin load balancing |
 | `GROQ_MODEL` | Optional | `llama-3.3-70b-versatile` | Override Groq LLM model name |
 | `PROXY_URL` | Optional | — | Global proxy URL or comma-separated proxy list for all fetchers |
@@ -117,7 +122,37 @@ If running in hosted environments where YouTube blocks data center IPs:
 2. Set `YT_COOKIES_PATH=/path/to/cookies.txt` in `.env`.
 3. Alternatively, export `headers_auth.json` via `ytmusicapi` and set `YT_HEADERS_PATH=/path/to/headers_auth.json`.
 
-### 5. User Configuration File (`.lyrica.config`)
+### 5.1 Musixmatch Token (Optional - Source 6)
+1. Sign up at [Musixmatch Developer](https://developer.musixmatch.com/).
+2. Create a new app and obtain your API key.
+3. Set in `.env`: `MUSIXMATCH_TOKEN=your_musixmatch_token_here`
+
+### 6. Apple Music Developer Token (Optional - Source 8)
+
+Apple Music provides the highest-quality synchronized lyrics with **syllable-level** and **word-level** timing. To enable this source:
+
+1. Enroll in the [Apple Developer Program](https://developer.apple.com/programs/) ($99/year).
+2. Create a new **MusicKit App** in [App Store Connect](https://appstoreconnect.apple.com/).
+3. Generate a **Provider Token** (JWT) with the following claims:
+   - `iss`: Your Team ID
+   - `iat`: Issue timestamp
+   - `exp`: Expiration (max 20 minutes from `iat`)
+   - `nonce`: Unique UUID
+4. Set in `.env`:
+   ```env
+   APPLE_MUSIC_DEVELOPER_TOKEN=your_jwt_here
+   APPLE_MUSIC_USER_TOKEN=your_user_token_if_available  # optional
+   APPLE_STOREFRONT=us                                 # optional, default: us
+   APPLE_LYRICS_LANGUAGE=en                              # optional, default: en
+   APPLE_LYRICS_SCRIPT=latin                             # optional, default: latin
+   ```
+5. Request syllable-level sync: `/lyrics/?artist=...&song=...&timestamps=true&syllabus=true`
+6. Request word-level sync: `/lyrics/?artist=...&song=...&timestamps=true&word=true`
+
+> [!IMPORTANT]
+> Without `APPLE_MUSIC_DEVELOPER_TOKEN`, the Apple Music fetcher is entirely disabled and will never be queried.
+
+### 7. User Configuration File (`.lyrica.config`)
 
 To customize fetcher defaults, rate limits, or static proxy lists without modifying code:
 
@@ -147,6 +182,7 @@ netease_rpm = 60
 megalobiz_rpm = 60
 musixmatch_rpm = 30
 lrcmux_rpm = 60
+apple_music_rpm = 60
 
 [proxies]
 # Add proxies for round-robin rotation if needed
@@ -169,6 +205,7 @@ Lyrica queries sources in order until lyrics are found:
 | 5 | `megalobiz` | Megalobiz | Line-level (LRC) | None |
 | 6 | `musixmatch` | Musixmatch | Line-level (LRC) | `MUSIXMATCH_TOKEN` (optional) |
 | 7 | `lrcmux` | Lrcmux (api.lrcmux.dev) | Line-level & Word-level | None |
+| 8 | `apple_music` | Apple Music | Line, Word-level & Syllable-level | `APPLE_MUSIC_DEVELOPER_TOKEN` |
 
 ---
 
