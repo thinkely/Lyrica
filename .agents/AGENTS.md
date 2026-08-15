@@ -210,7 +210,7 @@ The `_accept_check()` helper returns the appropriate predicate for each phase:
 - Rate limiting
 - **Lyrics Translation** — Translate lyrics via Groq LLM (`&translate=true&language=en`)
 - **Lyrics Romanization** — Transliterate lyrics via Groq LLM (`&romanize=true&language=en`)
-- Multi-key Groq API management with round-robin and 24h failover cooldowns
+- Multi-key Groq API management with round-robin and 24h failover cooldowns (default model: `llama-3.3-70b-versatile`, override via `GROQ_MODEL` — Groq may deprecate models)
 - YT auth via env vars (`YT_COOKIES_PATH`, `YT_HEADERS_PATH`) — priority over filesystem scan
 - Documentation organized under `guide/` directory (`SETUP_GUIDE.md`, `USER_GUIDE.md`, `WORD_SYNC_GUIDE.md`, `TRANSLATION_GUIDE.md`, `DEPLOYMENT_GUIDE.md`)
 

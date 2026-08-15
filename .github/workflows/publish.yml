@@ -1,27 +1,18 @@
 name: Build and Publish Docker Image
 
-# Works today, with zero process changes required. Also future-proof: the tag-triggered part below is simply dormant until the repo has a "vX.Y.Z" tag.
-# No semantic-release or conventional commits needed, just create one whenever a version feels ready,
-# either with a plain `git tag v1.3.0 && git push origin v1.3.0`, or through the Releases UI (Draft a new release  -> e.g. v1.3.0 -> Publish),
-# which also pushes the tag under the hood as long as it didn't already exist.
-# Both paths trigger this workflow as-is, no edits to this file required.
-#
-# - push to main   -> :edge + :sha-<commit>   (never touches :latest)
-# - push of v*.*.* -> :X.Y.Z, :X.Y, :X, :latest
 on:
   push:
     branches: ["main"]
     tags: ["v*.*.*"]
   workflow_dispatch: {}
 
-# Cancel superseded in-flight builds on main; never cancel tag builds mid-publish.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ github.ref_type == 'branch' }}
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }} # -> ghcr.io/wilooper/lyrica
+  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
   build-and-push:
@@ -29,10 +20,13 @@ jobs:
     permissions:
       contents: read
       packages: write
+      pull-requests: write
 
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
@@ -54,9 +48,17 @@ jobs:
           tags: |
             type=raw,value=edge,enable=${{ github.ref == 'refs/heads/main' }}
             type=sha,enable=${{ github.ref == 'refs/heads/main' }}
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=semver,pattern={{major}}
+            type=semver,pattern={{version}},enable=${{ github.ref_type == 'tag' }}
+            type=semver,pattern={{major}}.{{minor}},enable=${{ github.ref_type == 'tag' }}
+            type=semver,pattern={{major}},enable=${{ github.ref_type == 'tag' }}
+
+      - name: Get latest commit message
+        id: commit
+        run: |
+          echo "message<<EOF" >> $GITHUB_OUTPUT
+          git log -1 --pretty=%B >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          echo "short_sha=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
 
       - name: Build and push
         uses: docker/build-push-action@v7
@@ -68,3 +70,11 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Add version label to Docker image
+        if: github.ref_type != 'tag'
+        run: |
+          TAGS="${{ steps.meta.outputs.tags }}"
+          for tag in $TAGS; do
+            echo "Pushed: $tag"
+          done

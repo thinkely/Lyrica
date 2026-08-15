@@ -1,0 +1,38 @@
+name: Generate Release Summary
+
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch: {}
+
+jobs:
+  release-summary:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Generate release notes
+        id: release
+        uses: Gajus/generate-release-notes@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: main
+          skip_collapsed: false
+
+      - name: Create or update release
+        uses: softprops/gh-release@v2
+        with:
+          tag_name: edge
+          name: Edge Release ( ${{ github.sha }})
+          body_path: ${{ steps.release.outputs.release_notes_path }}
+          draft: false
+          prerelease: true
+          generate_release_notes: false
+          allow_updates: true

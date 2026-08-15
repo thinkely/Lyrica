@@ -32,6 +32,9 @@ GROQ_API_KEY=gsk_your_groq_api_key_here
 GROQ_API_KEY=gsk_key1,gsk_key2,gsk_key3
 
 # Custom Groq Model (Optional, default: llama-3.3-70b-versatile)
+# Note: Groq may deprecate or remove support for specific models at any time.
+# If llama-3.3-70b-versatile becomes unavailable, set GROQ_MODEL to any other
+# available Groq model of your preference from https://console.groq.com/docs/models
 GROQ_MODEL=llama-3.3-70b-versatile
 ```
 

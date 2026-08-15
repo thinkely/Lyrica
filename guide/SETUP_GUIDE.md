@@ -89,7 +89,7 @@ Once the server is running, test these URLs in your browser or terminal:
 | `APPLE_LYRICS_LANGUAGE` | Optional | `en` | Preferred lyrics language code. |
 | `APPLE_LYRICS_SCRIPT` | Optional | `latin` | Preferred lyrics script code. |
 | `GROQ_API_KEY` | Optional | — | Groq LLM key(s) for lyrics translation & romanization. Supports comma-separated keys for round-robin load balancing |
-| `GROQ_MODEL` | Optional | `llama-3.3-70b-versatile` | Override Groq LLM model name |
+| `GROQ_MODEL` | Optional | `llama-3.3-70b-versatile` | Override Groq LLM model (Groq may deprecate models — set to any available model if needed) |
 | `PROXY_URL` | Optional | — | Global proxy URL or comma-separated proxy list for all fetchers |
 | `YT_PROXY_URL` | Optional | — | Dedicated proxy URL for YouTube Music fetcher |
 | `YT_COOKIES_PATH` | Optional | — | Absolute path to `cookies.txt` (used by YouTube fetcher layer 3) |

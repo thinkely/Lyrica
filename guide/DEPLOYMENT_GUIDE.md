@@ -32,6 +32,8 @@ GENIUS_TOKEN=your_genius_client_token
 MUSIXMATCH_TOKEN=your_musixmatch_client_token
 
 # Groq LLM Translation Keys (Comma-separated for round-robin)
+# Note: Groq may deprecate or remove support for specific models at any time.
+# Override GROQ_MODEL with any available Groq model if the default is removed.
 GROQ_API_KEY=gsk_key1,gsk_key2
 GROQ_MODEL=llama-3.3-70b-versatile
 

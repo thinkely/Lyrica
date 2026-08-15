@@ -10,13 +10,32 @@
 
 ---
 
+## 🆕 What's New
+
+### v1.5.0 (Aug 2026)
+- **Apple Music Integration**: Native Apple Music source (ID 8) with syllable-level sync (`&syllabus=true`), word-level sync, and line-level timestamps
+- **Syllable-Level Sync**: Per-syllable timing via Apple Music — the most granular sync level for karaoke applications
+- **Multi-Sync-Level Fallback**: Intelligent fallback hierarchy: syllable → word → line → plain, automatically degrading to the best available sync level
+- **Cache Key v5**: Cache keys now include `syllabus` and `word_level` parameters to prevent collisions across sync levels
+- **CI/CD Improvements**: Docker images now auto-published on every push to `main` as `edge` and `sha-*` tags
+- **Release Summaries**: Automated GitHub release notes generated on every push
+
+### v1.4.0
+- **Word-Level Sync (Karaoke)**: Per-word timestamps via Lrcmux (`&word=true&timestamps=true`)
+- **AI Translation & Romanization**: Real-time lyrics translation and transliteration via Groq LLM
+- **Trending Analytics**: Real-time Apple Music top charts by country
+- **Song Suggestions**: MusicBrainz-powered autocomplete for search-as-you-type
+- **Rate Limiting**: Configurable RPM limits per source with Redis backend support
+
+---
+
 ## 📌 Overview
 
 **Lyrica** aggregates song lyrics from **8 active sources** with intelligent sync-level fallback, fast parallel execution, word-level synchronization (Karaoke mode), syllable-level sync, sentiment analysis, song metadata, trending charts, and real-time LLM translation/romanization using Groq.
 
 - 💡 **No API Key Required**: Fully functional out-of-the-box without registration.
 - ⚡ **Sub-Second Speed**: Parallel multi-source fetch mode (`fast=true`) with TTL disk caching.
-   - 🎤 **Word & Syllable-Level Sync**: Per-word and per-syllable timestamps for karaoke applications via Lrcmux (`&word=true`) and Apple Music (`&syllabus=true`).
+- 🎤 **Word & Syllable-Level Sync**: Per-word and per-syllable timestamps for karaoke applications via Lrcmux (`&word=true`) and Apple Music (`&syllabus=true`).
 - 🌐 **AI Translation**: Translate & romanize lyrics on-the-fly via Groq LLM (`&translate=true`).
 - 🚀 **Production Ready**: Gunicorn-compatible with multi-key Groq rotation and proxy pool support.
 
