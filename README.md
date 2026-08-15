@@ -257,6 +257,6 @@ Please ensure code adheres to PEP 8 standards and new features include documenta
 
 ## 📝 License
 
-Licensed under the [MIT License](LICENSE) © 2025 Lyrica Contributors.
+Licensed under the [MIT License](LICENSE) © 2026 Lyrica Contributors.
 
 Made with ❤️ in India 🇮🇳
