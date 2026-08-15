@@ -20,10 +20,10 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "details": {
+                    "status": {
                       "type": "string"
                     },
-                    "status": {
+                    "details": {
                       "type": "string"
                     }
                   }
@@ -69,6 +69,15 @@
                 "schema": {
                   "type": "object",
                   "properties": {
+                    "timestamp": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string"
+                    },
+                    "version": {
+                      "type": "string"
+                    },
                     "fetchers": {
                       "type": "string"
                     },
@@ -78,19 +87,10 @@
                     "description": {
                       "type": "string"
                     },
-                    "version": {
-                      "type": "string"
-                    },
                     "api": {
                       "type": "string"
                     },
-                    "status": {
-                      "type": "string"
-                    },
                     "parameters": {
-                      "type": "string"
-                    },
-                    "timestamp": {
                       "type": "string"
                     }
                   }
@@ -108,7 +108,7 @@
         "operationId": "lyrics_get",
         "parameters": [
           {
-            "name": "sequence",
+            "name": "timestamps",
             "in": "query",
             "required": false,
             "schema": {
@@ -116,23 +116,7 @@
             }
           },
           {
-            "name": "fast",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "language",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "word",
+            "name": "timestamp",
             "in": "query",
             "required": false,
             "schema": {
@@ -148,15 +132,7 @@
             }
           },
           {
-            "name": "romanize",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "song",
+            "name": "syllabus",
             "in": "query",
             "required": false,
             "schema": {
@@ -180,7 +156,7 @@
             }
           },
           {
-            "name": "artist",
+            "name": "translate",
             "in": "query",
             "required": false,
             "schema": {
@@ -188,7 +164,15 @@
             }
           },
           {
-            "name": "timestamps",
+            "name": "word",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "song",
             "in": "query",
             "required": false,
             "schema": {
@@ -204,7 +188,7 @@
             }
           },
           {
-            "name": "translate",
+            "name": "sequence",
             "in": "query",
             "required": false,
             "schema": {
@@ -212,7 +196,31 @@
             }
           },
           {
-            "name": "timestamp",
+            "name": "language",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "fast",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "artist",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "romanize",
             "in": "query",
             "required": false,
             "schema": {
@@ -249,7 +257,7 @@
         "operationId": "metadata_get",
         "parameters": [
           {
-            "name": "artist",
+            "name": "song",
             "in": "query",
             "required": false,
             "schema": {
@@ -257,7 +265,7 @@
             }
           },
           {
-            "name": "song",
+            "name": "artist",
             "in": "query",
             "required": false,
             "schema": {
@@ -294,7 +302,7 @@
         "operationId": "trending_get",
         "parameters": [
           {
-            "name": "country",
+            "name": "limit",
             "in": "query",
             "required": false,
             "schema": {
@@ -302,7 +310,7 @@
             }
           },
           {
-            "name": "limit",
+            "name": "country",
             "in": "query",
             "required": false,
             "schema": {
@@ -350,6 +358,14 @@
         "operationId": "top_queries_get",
         "parameters": [
           {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "days",
             "in": "query",
             "required": false,
@@ -359,14 +375,6 @@
           },
           {
             "name": "country",
-            "in": "query",
-            "required": false,
-            "schema": {
-              "type": "string"
-            }
-          },
-          {
-            "name": "limit",
             "in": "query",
             "required": false,
             "schema": {
@@ -446,7 +454,7 @@
         "operationId": "trending_vs_queries_get",
         "parameters": [
           {
-            "name": "country",
+            "name": "limit",
             "in": "query",
             "required": false,
             "schema": {
@@ -454,7 +462,7 @@
             }
           },
           {
-            "name": "limit",
+            "name": "country",
             "in": "query",
             "required": false,
             "schema": {
@@ -494,7 +502,7 @@
         "operationId": "trending_intersection_get",
         "parameters": [
           {
-            "name": "country",
+            "name": "limit",
             "in": "query",
             "required": false,
             "schema": {
@@ -502,7 +510,7 @@
             }
           },
           {
-            "name": "limit",
+            "name": "country",
             "in": "query",
             "required": false,
             "schema": {
@@ -558,13 +566,13 @@
                 "schema": {
                   "type": "object",
                   "properties": {
+                    "results": {
+                      "type": "string"
+                    },
                     "status": {
                       "type": "string"
                     },
                     "error": {
-                      "type": "string"
-                    },
-                    "results": {
                       "type": "string"
                     }
                   }
@@ -646,22 +654,22 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "total": {
-                      "type": "string"
-                    },
-                    "results": {
+                    "status": {
                       "type": "string"
                     },
                     "error": {
                       "type": "string"
                     },
-                    "query": {
+                    "results": {
+                      "type": "string"
+                    },
+                    "total": {
                       "type": "string"
                     },
                     "limit": {
                       "type": "string"
                     },
-                    "status": {
+                    "query": {
                       "type": "string"
                     }
                   }
@@ -751,13 +759,13 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "details": {
-                      "type": "string"
-                    },
                     "status": {
                       "type": "string"
                     },
                     "error": {
+                      "type": "string"
+                    },
+                    "details": {
                       "type": "string"
                     }
                   }
@@ -803,13 +811,13 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "version": {
+                    "timestamp": {
                       "type": "string"
                     },
                     "status": {
                       "type": "string"
                     },
-                    "timestamp": {
+                    "version": {
                       "type": "string"
                     }
                   }
@@ -843,16 +851,16 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "pool_size": {
-                      "type": "string"
-                    },
                     "status": {
                       "type": "string"
                     },
-                    "error": {
+                    "pool_size": {
                       "type": "string"
                     },
                     "message": {
+                      "type": "string"
+                    },
+                    "error": {
                       "type": "string"
                     }
                   }
@@ -886,16 +894,16 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "pool_size": {
-                      "type": "string"
-                    },
                     "status": {
                       "type": "string"
                     },
-                    "error": {
+                    "pool_size": {
                       "type": "string"
                     },
                     "message": {
+                      "type": "string"
+                    },
+                    "error": {
                       "type": "string"
                     }
                   }
@@ -927,16 +935,16 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "pool_size": {
-                      "type": "string"
-                    },
                     "status": {
                       "type": "string"
                     },
-                    "error": {
+                    "pool_size": {
                       "type": "string"
                     },
                     "message": {
+                      "type": "string"
+                    },
+                    "error": {
                       "type": "string"
                     }
                   }
@@ -961,13 +969,13 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "pool_size": {
-                      "type": "string"
-                    },
                     "status": {
                       "type": "string"
                     },
                     "proxies": {
+                      "type": "string"
+                    },
+                    "pool_size": {
                       "type": "string"
                     }
                   }
@@ -992,10 +1000,10 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "pool_size": {
+                    "status": {
                       "type": "string"
                     },
-                    "status": {
+                    "pool_size": {
                       "type": "string"
                     },
                     "message": {
@@ -1023,7 +1031,7 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "error": {
+                    "timestamp": {
                       "type": "string"
                     },
                     "status": {
@@ -1032,7 +1040,7 @@
                     "config": {
                       "type": "string"
                     },
-                    "timestamp": {
+                    "error": {
                       "type": "string"
                     }
                   }
@@ -1057,19 +1065,19 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "error": {
-                      "type": "string"
-                    },
-                    "message": {
+                    "timestamp": {
                       "type": "string"
                     },
                     "status": {
                       "type": "string"
                     },
-                    "config": {
+                    "message": {
                       "type": "string"
                     },
-                    "timestamp": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "config": {
                       "type": "string"
                     }
                   }
