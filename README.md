@@ -18,7 +18,7 @@
 - **Multi-Sync-Level Fallback**: Intelligent fallback hierarchy: syllable → word → line → plain, automatically degrading to the best available sync level
 - **Cache Key v5**: Cache keys now include `syllabus` and `word_level` parameters to prevent collisions across sync levels
 - **CI/CD Improvements**: Docker images now auto-published on every push to `main` as `edge` and `sha-*` tags
-- **Release Summaries**: Automated GitHub release notes generated on every push
+- **Now on codeberg also**: https://codeberg.org/willooper/Lyrica.git
 
 ### v1.4.0
 - **Word-Level Sync (Karaoke)**: Per-word timestamps via Lrcmux (`&word=true&timestamps=true`)
