@@ -85,12 +85,12 @@ docker run -p 9999:9999 --env-file .env lyrica
 - ⏱️ **Synchronized Timestamps (LRC)**: Line-level lyrics timing with millisecond accuracy.
 - 🎤 **Word-Level Sync (Karaoke)**: Per-word timing entries via Lrcmux / Apple Music (`&word=true`).
 - 🎵 **Syllable-Level Sync**: Per-syllable timing via Apple Music (`&syllabus=true`).
-- 🤖 **AI Translation & Romanization**: Real-time translation and transliteration to target languages using Groq LLM (`llama-3.3-70b-versatile`).
+- 🤖 **AI Translation & Romanization**: Real-time translation and transliteration to target languages using Groq LLM (`openai/gpt-oss-120b`).
 - 📊 **Sentiment & Mood Analysis**: Polarity, subjectivity, emotion classification, and word frequency breakdown.
 - 🖼️ **Rich Track Metadata**: Cover art, duration, genre, release date, and album information.
 - 📈 **Trending Charts & Suggestions**: Real-time Apple Music top charts by country and MusicBrainz search autocomplete.
 - 🛡️ **Proxy Rotation & Failover**: Thread-safe proxy pool with automated credential masking and cooldowns.
-- 💾 **Smart Dual-Tier Caching**: Disk-based JSON caching with independent translation caching.
+- 💾 **Multi-Tier Caching & Concurrency**: L1 in-memory LRU + L2 Redis + L3 disk-based JSON caching with independent translation caching and high-concurrency async connection pooling.
 
 ---
 
@@ -124,7 +124,8 @@ Lyrica uses environment variables (`.env`) for secrets and system infrastructure
 ADMIN_KEY=your_secure_admin_key
 GENIUS_TOKEN=your_genius_token
 GROQ_API_KEY=gsk_key1,gsk_key2
-GROQ_MODEL=llama-3.3-70b-versatile
+GROQ_MODEL=openai/gpt-oss-120b
+REDIS_URL=redis://localhost:6379/0
 PROXY_URL=http://user:pass@host:port
 APPLE_MUSIC_DEVELOPER_TOKEN=your_apple_music_developer_token
 YT_COOKIES_PATH=/app/security/cookies.txt
